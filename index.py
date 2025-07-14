@@ -4,8 +4,8 @@ root.geometry("1800x769")
 root.title("Register")
 
 
-name_lanel = cus.CTkLabel(root, text="Name")
-name_lanel.grid(row=0, column=0, padx=100, pady=7)
+name_label = cus.CTkLabel(root, text="Name")
+name_label.grid(row=0, column=0, padx=100, pady=7)
 position_label = cus.CTkLabel(root, text="Position")
 position_label.grid(row=0, column=1, padx=100, pady=7)
 date_label = cus.CTkLabel(root, text="Date")
