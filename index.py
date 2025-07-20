@@ -89,10 +89,10 @@ def pop_up():
             cursor.close()
             conn.close()
 
-            add_employee(name, position)  # Add to GUI
+            add_employee(name, position)  
             popup.destroy()
         except mysql.connector.Error as err:
-            print("Error:", err)  # You can replace this with a CTk messagebox if needed
+            print("Error:", err)  
 
     submit_button = cus.CTkButton(popup, text="Submit", command=submit_data)
     submit_button.pack(pady=10)
