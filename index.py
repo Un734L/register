@@ -16,22 +16,25 @@ root.title("Register")
 # for idx, text in enumerate(headers):
 #     cus.CTkLabel(root, text=text, font=("Arial", 16, "bold")).grid(row=0, column=idx, padx=10, pady=10)
 
+# Header Frame (Fixed at the top)
+header_frame = cus.CTkFrame(root, fg_color="#99C57C")
+header_frame.grid(row=0, column=0, columnspan=5, sticky="nsew", padx=20, pady=(10, 0))
 
-frame = cus.CTkFrame(root, fg_color="#2a2a2a")
-frame.grid(row=1, column=0, columnspan=5, sticky="nsew", padx=20, pady=(0, 20))
-frame.grid_propagate(False)
-header_frame = cus.CTkFrame(frame, fg_color="#7EC44F")
-header_frame.grid(row=0, column=0,columnspan=5, sticky="nsew")
-headers = ["Name", "Position", "Date", "Time", "Total work days"]
+headers = ["Name", "Position", "Date", "Time", "Total"]
 for idx, text in enumerate(headers):
-    cus.CTkLabel(header_frame, text=text, font=("Arial", 14, "bold"), text_color="white").grid(
-        row=0, column=idx, padx=10, pady=7, sticky="nsew"
-    )
+    label = cus.CTkLabel(header_frame, text=text, font=("Arial", 14, "bold"), text_color="white")
+    label.grid(row=0, column=idx, padx=10, pady=7, sticky="nsew")
     header_frame.grid_columnconfigure(idx, weight=1)
 
+# Scrollable Frame for data
+frame = cus.CTkScrollableFrame(root, fg_color="#2a2a2a", width=1700, height=650)
+frame.grid(row=1, column=0, columnspan=5, sticky="nsew", padx=20, pady=(0, 20))
 
-for i in range(5):
+for i in range(len(headers)):
     frame.grid_columnconfigure(i, weight=1)
+
+# Make the rows and root responsive
+for i in range(len(headers)):
     root.grid_columnconfigure(i, weight=1)
 root.grid_rowconfigure(1, weight=1)
 
@@ -101,5 +104,20 @@ def pop_up():
 button = cus.CTkButton(root, text="Add Employee", command=pop_up)
 button.grid(row=2, column=0, padx=10, pady=10)
 
+#show records/Employees in database
+connection = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    password="MyStr0ngP@ssw0rd",
+    database="farm_db"
+)
+cursor = connection.cursor()
+cursor.execute("SELECT name, position, work_date, work_time, total_days_worked FROM employees")
+records = cursor.fetchall()
+record_row = 0  # reset to 0 before loading from DB
+for row_index, row_data in enumerate(records, start=1):
+    for col_index, value in enumerate(row_data):
+        cus.CTkLabel(frame, text=value).grid(row=row_index, column=col_index, padx=10, pady=7, sticky="nsew")
+    record_row += 1  # update record_row to track last row
 
 root.mainloop()
