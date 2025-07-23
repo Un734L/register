@@ -1,6 +1,8 @@
 import customtkinter as cus
 from datetime import datetime
 import mysql.connector
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
 
 today = datetime.now().date()
 current_time = datetime.now().strftime("%I:%M %p")
@@ -54,22 +56,26 @@ def load_employees():
 # Add Employee Popup
 def pop_up():
     popup = cus.CTkToplevel(root)
-    popup.geometry("400x200")
+    popup.geometry("400x300")
     popup.title("Add Employee")
 
     name_entry = cus.CTkEntry(popup, placeholder_text="Name")
     name_entry.pack(pady=10)
     position_entry = cus.CTkEntry(popup, placeholder_text="Position")
     position_entry.pack(pady=10)
+    wage_entry = cus.CTkEntry(popup, placeholder_text="wage per day (K)")
+    wage_entry.pack(pady=10)
     password_entry = cus.CTkEntry(popup, placeholder_text="Password")
     password_entry.pack(pady=10)
 
     def submit_data():
         name = name_entry.get()
         position = position_entry.get()
+        wage = wage_entry.get()  
         password = password_entry.get()
         work_date = datetime.now().date()
         work_time = datetime.now().time().strftime("%H:%M:%S")
+
         try:
             conn = mysql.connector.connect(
                 host="localhost",
@@ -79,10 +85,10 @@ def pop_up():
             )
             cursor = conn.cursor()
             query = """
-                INSERT INTO employees (name, position, work_date, work_time, total_days_worked, password)
-                VALUES (%s, %s, %s, %s, %s, %s)
+                INSERT INTO employees (name, position, work_date, work_time, total_days_worked, password, wage)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
             """
-            values = (name, position, work_date, work_time, 1, password)
+            values = (name, position, work_date, work_time, 1, password, wage)
             cursor.execute(query, values)
             conn.commit()
             cursor.close()
@@ -141,7 +147,7 @@ def mark_employee():
                 """, (total_days, now.date(), now.time().strftime("%H:%M:%S"), name, password))
                 connection.commit()
                 message_label.configure(text="Attendance Marked!", text_color="green")
-                load_employees()  # Refresh main window
+                load_employees()
             else:
                 message_label.configure(text="Invalid name or password", text_color="red")
 
@@ -154,9 +160,62 @@ def mark_employee():
     check = cus.CTkButton(popup, text="Check", command=check_employee)
     check.pack(pady=10)
 
+# Download PDF
+def download_pdf():
+    conn = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="MyStr0ngP@ssw0rd",
+        database="farm_db"
+    )
+    cursor = conn.cursor()
+    cursor.execute("SELECT name, position, wage, total_days_worked FROM employees")
+    results = cursor.fetchall()
+
+    pdf_file = "employee_report.pdf"
+    c = canvas.Canvas(pdf_file, pagesize=A4) 
+    width, height = A4
+    y = height - 50
+
+    c.setFont("Helvetica-Bold", 16)
+    c.drawString(200, y, "Employee Report")
+    y -= 40
+
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(50, y, "Name")
+    c.drawString(150, y, "Position")
+    c.drawString(280, y, "Days Worked")
+    c.drawString(380, y, "Wage (K)")
+    c.drawString(480, y, "Total (K)")
+    y -= 20
+
+    c.setFont("Helvetica", 11)  
+
+    for row in results:
+        name, position, wage, days_worked = row
+        try:
+            total_pay = float(wage) * int(days_worked)
+        except:
+            total_pay = 0
+
+        c.drawString(50, y, str(name))
+        c.drawString(150, y, str(position))
+        c.drawString(280, y, str(days_worked))
+        c.drawString(380, y, f"K{wage}")
+        c.drawString(480, y, f"K{total_pay:.2f}")
+
+        y -= 20
+        if y < 50:
+            c.showPage()
+            y = height - 50
+
+    c.save()  
+    print("PDF downloaded successfully.")
+
 # Buttons
 cus.CTkButton(root, text="Add Employee", command=pop_up).grid(row=2, column=0, padx=10, pady=10)
 cus.CTkButton(root, text="Mark", command=mark_employee).grid(row=2, column=1, padx=10, pady=10)
+
 def delete_employee():
     popup = cus.CTkToplevel(root)
     popup.geometry("400x200")
@@ -194,11 +253,12 @@ def delete_employee():
 
     delete_button = cus.CTkButton(popup, text="Delete", command=delete_data)
     delete_button.pack(pady=10)
-delete_button = cus.CTkButton(root, text="Delete Employee", command=delete_employee)
-delete_button.grid(row=2, column=2, padx=10, pady=10)
 
+cus.CTkButton(root, text="Delete Employee", command=delete_employee).grid(row=2, column=2, padx=10, pady=10)
+
+
+cus.CTkButton(root, text="Download PDF", command=download_pdf).grid(row=2, column=3, padx=10, pady=10)
 
 # Initial Load
 load_employees()
-
 root.mainloop()
