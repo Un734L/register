@@ -210,7 +210,10 @@ def download_pdf():
             y = height - 50
 
     c.save()  
-    print("PDF downloaded successfully.")
+    popup = cus.CTkToplevel(root)
+    popup.geometry("300x100")
+    popup.title("PDF")
+    cus.CTkLabel(popup, text=f"PDF saved as {pdf_file} ", text_color="green").pack(pady=20)
 
 # Buttons
 cus.CTkButton(root, text="Add Employee", command=pop_up).grid(row=2, column=0, padx=10, pady=10)
