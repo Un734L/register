@@ -181,26 +181,34 @@ def download_pdf():
     c.drawString(200, y, "Employee Wage Report")
     y -= 40
 
-    c.setFont("Helvetica", 12)
+    c.setFont("Helvetica", 11)
 
-    for row in results:
+    col_width = 180  # Space between columns
+    max_cols = 3     # 3 names per row
+    col = 0          # current column
+
+    for i, row in enumerate(results):
         name, wage, days_worked = row
         try:
             total_pay = float(wage) * int(days_worked)
         except:
             total_pay = 0
 
-        c.drawString(50, y, str(name))
-        y -= 15
-        c.drawString(50, y, f"Total Wage: K{total_pay:.2f}")
-        y -= 30  # Space between entries
+        x = 50 + (col * col_width)
+        c.drawString(x, y, str(name))
+        c.drawString(x, y - 15, f"Total: K{total_pay:.2f}")
+        col += 1
+
+        if col >= max_cols:
+            col = 0
+            y -= 50  # Go to next row
 
         if y < 60:
             c.showPage()
             y = height - 50
+            col = 0
 
     c.save()
-
     popup = cus.CTkToplevel(root)
     popup.geometry("300x100")
     popup.title("PDF")
