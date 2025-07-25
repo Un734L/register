@@ -12,7 +12,7 @@ root.geometry("1800x769")
 root.title("Register")
 
 # Header Frame
-header_frame = cus.CTkFrame(root, fg_color="#99C57C")
+header_frame = cus.CTkFrame(root, fg_color="#226079")
 header_frame.grid(row=0, column=0, columnspan=5, sticky="nsew", padx=20, pady=(10, 0))
 
 headers = ["Name", "Position", "Date", "Time", "Total"]
@@ -65,7 +65,7 @@ def pop_up():
     position_entry.pack(pady=10)
     wage_entry = cus.CTkEntry(popup, placeholder_text="wage per day (K)")
     wage_entry.pack(pady=10)
-    password_entry = cus.CTkEntry(popup, placeholder_text="Password")
+    password_entry = cus.CTkEntry(popup, placeholder_text="Password",show="*")
     password_entry.pack(pady=10)
 
     def submit_data():
@@ -111,7 +111,7 @@ def mark_employee():
     name_entry = cus.CTkEntry(popup, placeholder_text="Name")
     name_entry.pack(pady=10)
 
-    password_entry = cus.CTkEntry(popup, placeholder_text="Password")
+    password_entry = cus.CTkEntry(popup, placeholder_text="Password",show="*")
     password_entry.pack(pady=10)
 
     message_label = cus.CTkLabel(popup, text="")
@@ -223,7 +223,7 @@ def delete_employee():
 
     name_entry = cus.CTkEntry(popup, placeholder_text="Name")
     name_entry.pack(pady=10)
-    password_entry = cus.CTkEntry(popup, placeholder_text="Password")
+    password_entry = cus.CTkEntry(popup, placeholder_text="Password",show="*")
     password_entry.pack(pady=10)
 
     def delete_data():
