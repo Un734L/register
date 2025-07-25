@@ -169,52 +169,43 @@ def download_pdf():
         database="farm_db"
     )
     cursor = conn.cursor()
-    cursor.execute("SELECT name, position, wage, total_days_worked FROM employees")
+    cursor.execute("SELECT name, wage, total_days_worked FROM employees")
     results = cursor.fetchall()
 
     pdf_file = "employee_report.pdf"
-    c = canvas.Canvas(pdf_file, pagesize=A4) 
+    c = canvas.Canvas(pdf_file, pagesize=A4)
     width, height = A4
     y = height - 50
 
     c.setFont("Helvetica-Bold", 16)
-    c.drawString(200, y, "Employee Report")
+    c.drawString(200, y, "Employee Wage Report")
     y -= 40
 
-    c.setFont("Helvetica-Bold", 12)
-    c.drawString(50, y, "Name")
-    c.drawString(150, y, "Position")
-    c.drawString(280, y, "Days Worked")
-    c.drawString(380, y, "Wage (K)")
-    c.drawString(480, y, "Total (K)")
-    y -= 20
-
-    c.setFont("Helvetica", 11)  
+    c.setFont("Helvetica", 12)
 
     for row in results:
-        name, position, wage, days_worked = row
+        name, wage, days_worked = row
         try:
             total_pay = float(wage) * int(days_worked)
         except:
             total_pay = 0
 
         c.drawString(50, y, str(name))
-        c.drawString(150, y, str(position))
-        c.drawString(280, y, str(days_worked))
-        c.drawString(380, y, f"K{wage}")
-        c.drawString(480, y, f"K{total_pay:.2f}")
+        y -= 15
+        c.drawString(50, y, f"Total Wage: K{total_pay:.2f}")
+        y -= 30  # Space between entries
 
-        y -= 20
-        if y < 50:
+        if y < 60:
             c.showPage()
             y = height - 50
 
-    c.save()  
+    c.save()
+
     popup = cus.CTkToplevel(root)
     popup.geometry("300x100")
     popup.title("PDF")
-    cus.CTkLabel(popup, text=f"PDF saved as {pdf_file} ", text_color="green").pack(pady=20)
-
+    cus.CTkLabel(popup, text=f"PDF saved as {pdf_file}", text_color="green").pack(pady=20)
+    cus.CTkButton(popup, text="Close", command=popup.destroy).pack(pady=10)
 # Buttons
 cus.CTkButton(root, text="Add Employee", command=pop_up).grid(row=2, column=0, padx=10, pady=10)
 cus.CTkButton(root, text="Mark", command=mark_employee).grid(row=2, column=1, padx=10, pady=10)
